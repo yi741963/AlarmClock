@@ -1,0 +1,48 @@
+{
+  "Alarms": [
+    {
+      "Id": "alarm-001",
+      "Hour": 23,
+      "Minute": 0,
+      "Name": "晚上 11 點提醒",
+      "IsEnabled": true,
+      "customRingingDurationSeconds": 5,
+      "maxRingingDurationMinutes": 10,
+      "musicFilePath": ""
+    },
+    {
+      "Id": "alarm-002",
+      "Hour": 0,
+      "Minute": 0,
+      "Name": "午夜 12 點提醒",
+      "IsEnabled": true,
+      "customRingingDurationSeconds": 5,
+      "maxRingingDurationMinutes": 10,
+      "musicFilePath": ""
+    },
+    {
+      "Id": "alarm-003",
+      "Hour": 7,
+      "Minute": 30,
+      "Name": "早晨起床",
+      "IsEnabled": true,
+      "customRingingDurationSeconds": 10,
+      "maxRingingDurationMinutes": 15,
+      "musicFilePath": ""
+    },
+    {
+      "Id": "alarm-004",
+      "Hour": 14,
+      "Minute": 0,
+      "Name": "下午休息",
+      "IsEnabled": false,
+      "customRingingDurationSeconds": 3,
+      "maxRingingDurationMinutes": 5,
+      "musicFilePath": ""
+    }
+  ],
+  "defaultRingingDurationSeconds": 5,
+  "maxRingingDurationMinutes": 10,
+  "idleThresholdSeconds": 30,
+  "musicFolderPath": ""
+}
