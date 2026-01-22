@@ -17,8 +17,14 @@ public partial class AlarmEditDialog : Window
     public int MaxRingingDuration { get; private set; }
     public string MusicFilePath { get; private set; } = "";
     public List<int> DaysOfWeek { get; private set; } = new();
+    public bool ExcludeHolidays { get; private set; }
     public bool IsSaved { get; private set; }
 
+    /// <summary>
+    /// 建立鬧鐘編輯對話框
+    /// </summary>
+    /// <param name="alarm">要編輯的鬧鐘，若為 null 則為新增模式</param>
+    /// <param name="musicManager">音樂管理器，用於處理音樂檔案選擇</param>
     public AlarmEditDialog(AlarmItem? alarm = null, MusicManager? musicManager = null)
     {
         InitializeComponent();
@@ -53,6 +59,9 @@ public partial class AlarmEditDialog : Window
 
             // 載入星期幾設定
             LoadDaysOfWeek(alarm.DaysOfWeek);
+
+            // 載入排除假日設定
+            ExcludeHolidaysCheckBox.IsChecked = alarm.ExcludeHolidays;
         }
         else
         {
@@ -66,6 +75,9 @@ public partial class AlarmEditDialog : Window
         }
     }
 
+    /// <summary>
+    /// 處理瀏覽音樂按鈕的點擊事件，開啟檔案選擇對話框並驗證所選檔案
+    /// </summary>
     private void BrowseMusicButton_Click(object sender, RoutedEventArgs e)
     {
         var openFileDialog = new Microsoft.Win32.OpenFileDialog
@@ -137,6 +149,9 @@ public partial class AlarmEditDialog : Window
         }
     }
 
+    /// <summary>
+    /// 更新音樂檔案路徑的顯示文字，顯示檔案名稱或預設音效提示
+    /// </summary>
     private void UpdateMusicFileDisplay()
     {
         if (string.IsNullOrEmpty(_selectedMusicFilePath))
@@ -149,6 +164,10 @@ public partial class AlarmEditDialog : Window
         }
     }
 
+    /// <summary>
+    /// 根據設定的星期清單載入並勾選對應的星期核取方塊
+    /// </summary>
+    /// <param name="daysOfWeek">要勾選的星期清單（0=日, 1=一, ..., 6=六）</param>
     private void LoadDaysOfWeek(List<int> daysOfWeek)
     {
         // 清除所有勾選
@@ -179,6 +198,10 @@ public partial class AlarmEditDialog : Window
         }
     }
 
+    /// <summary>
+    /// 取得目前勾選的星期核取方塊，轉換為星期數字清單
+    /// </summary>
+    /// <returns>已勾選的星期清單（0=日, 1=一, ..., 6=六）</returns>
     private List<int> GetSelectedDaysOfWeek()
     {
         var days = new List<int>();
@@ -194,6 +217,9 @@ public partial class AlarmEditDialog : Window
         return days;
     }
 
+    /// <summary>
+    /// 處理最大響鈴時間滑桿的值變更事件，更新顯示文字和顏色
+    /// </summary>
     private void MaxRingingDurationSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (MaxRingingDurationText != null)
@@ -214,6 +240,9 @@ public partial class AlarmEditDialog : Window
         }
     }
 
+    /// <summary>
+    /// 處理儲存按鈕的點擊事件，驗證輸入並儲存鬧鐘設定
+    /// </summary>
     private void SaveButton_Click(object sender, RoutedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(NameTextBox.Text))
@@ -236,12 +265,16 @@ public partial class AlarmEditDialog : Window
         MaxRingingDuration = (int)MaxRingingDurationSlider.Value;
         MusicFilePath = _selectedMusicFilePath;
         DaysOfWeek = GetSelectedDaysOfWeek();
+        ExcludeHolidays = ExcludeHolidaysCheckBox.IsChecked ?? false;
         IsSaved = true;
 
         DialogResult = true;
         Close();
     }
 
+    /// <summary>
+    /// 處理取消按鈕的點擊事件，關閉對話框且不儲存變更
+    /// </summary>
     private void CancelButton_Click(object sender, RoutedEventArgs e)
     {
         IsSaved = false;

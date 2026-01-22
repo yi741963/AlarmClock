@@ -11,6 +11,7 @@
   - 🗑️ 刪除鬧鐘
   - 🔔/🔕 快速啟用/停用切換
   - 📅 **週期設定**：可設定每週特定日期響鈴（例如：僅週一到週五響鈴）
+  - 🎌 **國定假日排除**：可選擇排除台灣國定假日（春節、國慶日、清明節等）
 
 - 🎯 **智慧響鈴邏輯**
   - 檢測使用者是否正在使用電腦
@@ -48,16 +49,22 @@
 - 🔴 鬧鐘響起時顯示紅色警示
 - 📱 直覺的編輯對話框
 - 🎚️ 滑桿調整響鈴時間
+- 🖼️ **系統匣最小化**：程式可最小化到系統匣背景執行
+  - 自訂系統匣圖示（img/clock.png）
+  - 雙擊系統匣圖示恢復視窗
+  - 右鍵選單快速操作
+  - 關閉視窗不會結束程式，而是最小化到系統匣
 
 ## 專案結構
 
 ```
 AlarmClock/
-├── AlarmService.cs           # 鬧鐘核心邏輯
-├── AlarmConfig.cs            # JSON 設定管理
-├── MusicManager.cs           # 音樂檔案管理
+├── AlarmService.cs           # 鬧鐘核心邏輯（含完整 XML 註解）
+├── AlarmConfig.cs            # JSON 設定管理（含完整 XML 註解）
+├── MusicManager.cs           # 音樂檔案管理（含完整 XML 註解）
+├── TaiwanHolidays.cs         # 台灣國定假日管理
 ├── AlarmEditDialog.xaml      # 編輯對話框 UI
-├── AlarmEditDialog.xaml.cs   # 編輯對話框邏輯
+├── AlarmEditDialog.xaml.cs   # 編輯對話框邏輯（含完整 XML 註解）
 ├── SettingsDialog.xaml       # 全域設定對話框 UI
 ├── SettingsDialog.xaml.cs    # 全域設定對話框邏輯
 ├── MainWindow.xaml           # 主視窗 UI
@@ -125,7 +132,8 @@ AlarmClock/
       "customRingingDurationSeconds": 10,
       "maxRingingDurationMinutes": 0,
       "musicFilePath": "C:\\Users\\...\\Music\\morning.mp3",
-      "daysOfWeek": [1, 2, 3, 4, 5]
+      "daysOfWeek": [1, 2, 3, 4, 5],
+      "excludeHolidays": true
     },
     {
       "Id": "uuid-here-3",
@@ -136,7 +144,8 @@ AlarmClock/
       "customRingingDurationSeconds": 5,
       "maxRingingDurationMinutes": 10,
       "musicFilePath": "",
-      "daysOfWeek": [0, 6]
+      "daysOfWeek": [0, 6],
+      "excludeHolidays": false
     }
   ],
   "defaultRingingDurationSeconds": 5,
@@ -154,6 +163,9 @@ AlarmClock/
   - 空陣列 `[]` = 每天都響
   - `[1, 2, 3, 4, 5]` = 僅週一到週五響鈴
   - `[0, 6]` = 僅週末響鈴
+- `excludeHolidays`: 布林值，是否排除台灣國定假日
+  - `true` = 國定假日不響鈴（適合工作日鬧鐘）
+  - `false` = 國定假日仍然響鈴（預設值）
 
 ### 核心邏輯流程
 

@@ -55,6 +55,9 @@ public partial class MainWindow : Window
         StateChanged += MainWindow_StateChanged;
     }
 
+    /// <summary>
+    /// 設定系統嗶聲音效為鬧鐘預設音效
+    /// </summary>
     private void SetSystemBeep()
     {
         // 使用系統預設的警告音效
@@ -70,6 +73,9 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// 定期更新使用者介面，包含當前時間和使用者活動狀態
+    /// </summary>
     private void UpdateUI(object? sender, EventArgs e)
     {
         // 更新當前時間
@@ -83,11 +89,17 @@ public partial class MainWindow : Window
             : new SolidColorBrush(System.Windows.Media.Color.FromRgb(136, 136, 136));
     }
 
+    /// <summary>
+    /// 當鬧鐘清單變更時，重新更新顯示
+    /// </summary>
     private void OnAlarmsChanged(object? sender, EventArgs e)
     {
         UpdateAlarmsDisplay();
     }
 
+    /// <summary>
+    /// 更新鬧鐘清單的顯示，如果沒有鬧鐘則顯示提示訊息
+    /// </summary>
     private void UpdateAlarmsDisplay()
     {
         AlarmsPanel.Children.Clear();
@@ -114,6 +126,11 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// 建立單一鬧鐘的顯示卡片，包含鬧鐘資訊和操作按鈕
+    /// </summary>
+    /// <param name="alarm">要顯示的鬧鐘物件</param>
+    /// <returns>鬧鐘卡片的 Border 元素</returns>
     private Border CreateAlarmCard(AlarmItem alarm)
     {
         var border = new Border
@@ -164,9 +181,12 @@ public partial class MainWindow : Window
             daysInfo = " | 每天";
         }
 
+        // 顯示假日排除資訊
+        string holidayInfo = alarm.ExcludeHolidays ? " | 排除假日" : "";
+
         var infoText = new TextBlock
         {
-            Text = $"響鈴 {alarm.CustomRingingDurationSeconds} 秒 | {(alarm.IsEnabled ? "✅ 啟用" : "❌ 停用")}{daysInfo}",
+            Text = $"響鈴 {alarm.CustomRingingDurationSeconds} 秒 | {(alarm.IsEnabled ? "✅ 啟用" : "❌ 停用")}{daysInfo}{holidayInfo}",
             FontSize = 12,
             Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(136, 136, 136)),
             Margin = new Thickness(0, 5, 0, 0)
@@ -264,6 +284,9 @@ public partial class MainWindow : Window
         return border;
     }
 
+    /// <summary>
+    /// 處理新增鬧鐘按鈕的點擊事件，開啟新增鬧鐘對話框
+    /// </summary>
     private void AddAlarmButton_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new AlarmEditDialog(null, _musicManager);
@@ -276,11 +299,16 @@ public partial class MainWindow : Window
                 dialog.RingingDuration,
                 dialog.MaxRingingDuration,
                 dialog.MusicFilePath,
-                dialog.DaysOfWeek
+                dialog.DaysOfWeek,
+                dialog.ExcludeHolidays
             );
         }
     }
 
+    /// <summary>
+    /// 開啟編輯鬧鐘對話框，並在使用者儲存後更新鬧鐘設定
+    /// </summary>
+    /// <param name="alarm">要編輯的鬧鐘物件</param>
     private void EditAlarm(AlarmItem alarm)
     {
         var dialog = new AlarmEditDialog(alarm, _musicManager);
@@ -295,11 +323,16 @@ public partial class MainWindow : Window
                 dialog.RingingDuration,
                 dialog.MaxRingingDuration,
                 dialog.MusicFilePath,
-                dialog.DaysOfWeek
+                dialog.DaysOfWeek,
+                dialog.ExcludeHolidays
             );
         }
     }
 
+    /// <summary>
+    /// 刪除指定的鬧鐘，會先顯示確認對話框
+    /// </summary>
+    /// <param name="alarm">要刪除的鬧鐘物件</param>
     private void DeleteAlarm(AlarmItem alarm)
     {
         var result = System.Windows.MessageBox.Show(
@@ -315,6 +348,9 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// 處理鬧鐘觸發事件，更新介面並播放音效
+    /// </summary>
     private void OnAlarmTriggered(object? sender, AlarmEventArgs e)
     {
         Dispatcher.Invoke(() =>
@@ -328,6 +364,9 @@ public partial class MainWindow : Window
         });
     }
 
+    /// <summary>
+    /// 處理鬧鐘停止事件，更新介面並停止音效
+    /// </summary>
     private void OnAlarmStopped(object? sender, AlarmEventArgs e)
     {
         Dispatcher.Invoke(() =>
@@ -341,6 +380,10 @@ public partial class MainWindow : Window
         });
     }
 
+    /// <summary>
+    /// 播放鬧鐘音效，優先使用自訂音樂檔案，否則使用系統預設音效
+    /// </summary>
+    /// <param name="alarm">觸發的鬧鐘物件</param>
     private void PlayAlarmSound(AlarmItem alarm)
     {
         try
@@ -372,11 +415,17 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// 停止播放鬧鐘音效
+    /// </summary>
     private void StopAlarmSound()
     {
         _alarmSound.Stop();
     }
 
+    /// <summary>
+    /// 處理設定按鈕的點擊事件，開啟設定對話框
+    /// </summary>
     private void SettingsButton_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new SettingsDialog(_config);
@@ -402,12 +451,32 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// 初始化系統匣圖示和右鍵選單
+    /// </summary>
     private void InitializeSystemTray()
     {
+        // 載入自訂圖示
+        System.Drawing.Icon? customIcon = null;
+        try
+        {
+            var iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "img", "clock.png");
+            if (File.Exists(iconPath))
+            {
+                using var bitmap = new System.Drawing.Bitmap(iconPath);
+                var handle = bitmap.GetHicon();
+                customIcon = System.Drawing.Icon.FromHandle(handle);
+            }
+        }
+        catch
+        {
+            // 如果載入失敗，使用預設圖示
+        }
+
         // 創建系統匣圖示
         _notifyIcon = new WinForms.NotifyIcon
         {
-            Icon = System.Drawing.SystemIcons.Application, // 使用預設應用程式圖示
+            Icon = customIcon ?? System.Drawing.SystemIcons.Application,
             Visible = true,
             Text = "智慧鬧鐘"
         };
@@ -436,6 +505,9 @@ public partial class MainWindow : Window
         _notifyIcon.ContextMenuStrip = contextMenu;
     }
 
+    /// <summary>
+    /// 處理視窗狀態變更事件，當最小化時隱藏視窗到系統匣
+    /// </summary>
     private void MainWindow_StateChanged(object? sender, EventArgs e)
     {
         // 當視窗最小化時，隱藏到系統匣
@@ -454,6 +526,9 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// 顯示主視窗並將其設定為正常狀態
+    /// </summary>
     private void ShowWindow()
     {
         Show();
@@ -461,6 +536,9 @@ public partial class MainWindow : Window
         Activate();
     }
 
+    /// <summary>
+    /// 覆寫視窗關閉事件，將關閉動作改為最小化到系統匣而不是結束程式
+    /// </summary>
     protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
     {
         // 關閉視窗時最小化到系統匣，而不是結束程式

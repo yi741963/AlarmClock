@@ -17,6 +17,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -237,8 +238,18 @@
             </WrapPanel>
         </StackPanel>
 
-        <!-- 啟用開關 -->
+        <!-- 排除台灣國定假日 -->
         <StackPanel Grid.Row="7" Margin="0,0,0,15" Orientation="Horizontal">
+            <CheckBox x:Name="ExcludeHolidaysCheckBox"
+                      Content="排除台灣國定假日"
+                      FontSize="14"
+                      Foreground="White"
+                      IsChecked="False"
+                      VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- 啟用開關 -->
+        <StackPanel Grid.Row="8" Margin="0,0,0,15" Orientation="Horizontal">
             <CheckBox x:Name="IsEnabledCheckBox"
                       Content="啟用此鬧鐘"
                       FontSize="14"
@@ -248,7 +259,7 @@
         </StackPanel>
 
         <!-- 按鈕 -->
-        <Grid Grid.Row="9" Margin="0,20,0,0">
+        <Grid Grid.Row="10" Margin="0,20,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="10"/>
