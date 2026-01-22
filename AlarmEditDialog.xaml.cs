@@ -68,7 +68,7 @@ public partial class AlarmEditDialog : Window
 
     private void BrowseMusicButton_Click(object sender, RoutedEventArgs e)
     {
-        var openFileDialog = new OpenFileDialog
+        var openFileDialog = new Microsoft.Win32.OpenFileDialog
         {
             Title = "選擇鬧鐘音樂檔案",
             Filter = "音樂檔案 (*.mp3;*.wav;*.wma;*.m4a)|*.mp3;*.wav;*.wma;*.m4a|所有檔案 (*.*)|*.*",
@@ -82,7 +82,7 @@ public partial class AlarmEditDialog : Window
             // 驗證檔案
             if (!_musicManager.IsValidMusicFile(selectedFile))
             {
-                MessageBox.Show(
+                System.Windows.MessageBox.Show(
                     "選擇的檔案無效！\n\n限制：\n- 僅支援 MP3, WAV, WMA, M4A 格式\n- 檔案大小不得超過 5 MB",
                     "檔案驗證失敗",
                     MessageBoxButton.OK,
@@ -92,7 +92,7 @@ public partial class AlarmEditDialog : Window
             }
 
             // 詢問是否複製到音樂資料夾
-            var result = MessageBox.Show(
+            var result = System.Windows.MessageBox.Show(
                 "是否將音樂檔案複製到應用程式的音樂資料夾？\n\n" +
                 "點擊「是」：複製檔案到程式資料夾（建議）\n" +
                 "點擊「否」：使用原始檔案路徑",
@@ -110,7 +110,7 @@ public partial class AlarmEditDialog : Window
                 if (copiedPath != null)
                 {
                     _selectedMusicFilePath = copiedPath;
-                    MessageBox.Show(
+                    System.Windows.MessageBox.Show(
                         "檔案已成功複製到音樂資料夾！",
                         "成功",
                         MessageBoxButton.OK,
@@ -119,7 +119,7 @@ public partial class AlarmEditDialog : Window
                 }
                 else
                 {
-                    MessageBox.Show(
+                    System.Windows.MessageBox.Show(
                         "複製檔案失敗，請檢查檔案權限。",
                         "錯誤",
                         MessageBoxButton.OK,
@@ -218,13 +218,13 @@ public partial class AlarmEditDialog : Window
     {
         if (string.IsNullOrWhiteSpace(NameTextBox.Text))
         {
-            MessageBox.Show("請輸入鬧鐘名稱", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            System.Windows.MessageBox.Show("請輸入鬧鐘名稱", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
         if (HourComboBox.SelectedIndex < 0 || MinuteComboBox.SelectedIndex < 0)
         {
-            MessageBox.Show("請選擇時間", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            System.Windows.MessageBox.Show("請選擇時間", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 

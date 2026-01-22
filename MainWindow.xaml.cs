@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using WinForms = System.Windows.Forms;
 
 namespace AlarmClock;
 
@@ -14,6 +15,7 @@ public partial class MainWindow : Window
     private readonly SoundPlayer _alarmSound;
     private readonly AlarmConfig _config;
     private readonly MusicManager _musicManager;
+    private WinForms.NotifyIcon? _notifyIcon;
 
     public MainWindow()
     {
@@ -45,6 +47,12 @@ public partial class MainWindow : Window
 
         // 在標題欄顯示設定檔路徑
         Title = $"智慧鬧鐘 - {AlarmConfig.GetConfigPath()}";
+
+        // 初始化系統匣圖示
+        InitializeSystemTray();
+
+        // 處理視窗狀態變更
+        StateChanged += MainWindow_StateChanged;
     }
 
     private void SetSystemBeep()
@@ -71,8 +79,8 @@ public partial class MainWindow : Window
         bool isActive = UserActivityDetector.IsUserActive(_config.IdleThresholdSeconds);
         UserActivityText.Text = $"使用者狀態: {(isActive ? "✅ 活躍中" : "💤 閒置中")}";
         UserActivityText.Foreground = isActive
-            ? new SolidColorBrush(Color.FromRgb(0, 255, 0))
-            : new SolidColorBrush(Color.FromRgb(136, 136, 136));
+            ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 255, 0))
+            : new SolidColorBrush(System.Windows.Media.Color.FromRgb(136, 136, 136));
     }
 
     private void OnAlarmsChanged(object? sender, EventArgs e)
@@ -91,7 +99,7 @@ public partial class MainWindow : Window
             {
                 Text = "尚無鬧鐘，請點擊上方按鈕新增",
                 FontSize = 14,
-                Foreground = new SolidColorBrush(Color.FromRgb(136, 136, 136)),
+                Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(136, 136, 136)),
                 TextAlignment = TextAlignment.Center,
                 Margin = new Thickness(0, 20, 0, 0)
             };
@@ -111,10 +119,10 @@ public partial class MainWindow : Window
         var border = new Border
         {
             Background = alarm.IsRinging
-                ? new SolidColorBrush(Color.FromRgb(255, 69, 0))
+                ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 69, 0))
                 : alarm.IsEnabled
-                    ? new SolidColorBrush(Color.FromRgb(60, 60, 60))
-                    : new SolidColorBrush(Color.FromRgb(40, 40, 40)),
+                    ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(60, 60, 60))
+                    : new SolidColorBrush(System.Windows.Media.Color.FromRgb(40, 40, 40)),
             CornerRadius = new CornerRadius(8),
             Padding = new Thickness(15),
             Margin = new Thickness(0, 0, 0, 10),
@@ -132,7 +140,7 @@ public partial class MainWindow : Window
             Text = alarm.Name,
             FontSize = 18,
             FontWeight = FontWeights.Bold,
-            Foreground = Brushes.White
+            Foreground = System.Windows.Media.Brushes.White
         };
 
         var timeText = new TextBlock
@@ -140,7 +148,7 @@ public partial class MainWindow : Window
             Text = alarm.Time.ToString(@"hh\:mm"),
             FontSize = 32,
             FontWeight = FontWeights.Bold,
-            Foreground = new SolidColorBrush(Color.FromRgb(0, 217, 255))
+            Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 217, 255))
         };
 
         // 顯示週期資訊
@@ -160,7 +168,7 @@ public partial class MainWindow : Window
         {
             Text = $"響鈴 {alarm.CustomRingingDurationSeconds} 秒 | {(alarm.IsEnabled ? "✅ 啟用" : "❌ 停用")}{daysInfo}",
             FontSize = 12,
-            Foreground = new SolidColorBrush(Color.FromRgb(136, 136, 136)),
+            Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(136, 136, 136)),
             Margin = new Thickness(0, 5, 0, 0)
         };
 
@@ -169,8 +177,8 @@ public partial class MainWindow : Window
             Text = alarm.IsRinging ? "🔊 響鈴中..." : "⏰ 已設定",
             FontSize = 14,
             Foreground = alarm.IsRinging
-                ? Brushes.Yellow
-                : new SolidColorBrush(Color.FromRgb(136, 136, 136)),
+                ? System.Windows.Media.Brushes.Yellow
+                : new SolidColorBrush(System.Windows.Media.Color.FromRgb(136, 136, 136)),
             Margin = new Thickness(0, 5, 0, 0)
         };
 
@@ -185,19 +193,19 @@ public partial class MainWindow : Window
         // 按鈕面板
         var buttonPanel = new StackPanel
         {
-            Orientation = Orientation.Vertical,
+            Orientation = System.Windows.Controls.Orientation.Vertical,
             VerticalAlignment = System.Windows.VerticalAlignment.Center
         };
 
         if (alarm.IsRinging)
         {
-            var stopButton = new Button
+            var stopButton = new System.Windows.Controls.Button
             {
                 Content = "關閉",
                 FontSize = 14,
                 Padding = new Thickness(15, 8, 15, 8),
-                Background = new SolidColorBrush(Color.FromRgb(220, 53, 69)),
-                Foreground = Brushes.White,
+                Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(220, 53, 69)),
+                Foreground = System.Windows.Media.Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = System.Windows.Input.Cursors.Hand,
                 Margin = new Thickness(0, 0, 0, 5)
@@ -207,13 +215,13 @@ public partial class MainWindow : Window
         }
         else
         {
-            var editButton = new Button
+            var editButton = new System.Windows.Controls.Button
             {
                 Content = "✏️",
                 FontSize = 14,
                 Padding = new Thickness(15, 8, 15, 8),
-                Background = new SolidColorBrush(Color.FromRgb(0, 123, 255)),
-                Foreground = Brushes.White,
+                Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 123, 255)),
+                Foreground = System.Windows.Media.Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = System.Windows.Input.Cursors.Hand,
                 Margin = new Thickness(0, 0, 0, 5)
@@ -221,13 +229,13 @@ public partial class MainWindow : Window
             editButton.Click += (s, e) => EditAlarm(alarm);
             buttonPanel.Children.Add(editButton);
 
-            var toggleButton = new Button
+            var toggleButton = new System.Windows.Controls.Button
             {
                 Content = alarm.IsEnabled ? "🔕" : "🔔",
                 FontSize = 14,
                 Padding = new Thickness(15, 8, 15, 8),
-                Background = new SolidColorBrush(Color.FromRgb(255, 193, 7)),
-                Foreground = Brushes.White,
+                Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 193, 7)),
+                Foreground = System.Windows.Media.Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = System.Windows.Input.Cursors.Hand,
                 Margin = new Thickness(0, 0, 0, 5)
@@ -235,13 +243,13 @@ public partial class MainWindow : Window
             toggleButton.Click += (s, e) => _alarmService.ToggleAlarm(alarm.Id);
             buttonPanel.Children.Add(toggleButton);
 
-            var deleteButton = new Button
+            var deleteButton = new System.Windows.Controls.Button
             {
                 Content = "🗑️",
                 FontSize = 14,
                 Padding = new Thickness(15, 8, 15, 8),
-                Background = new SolidColorBrush(Color.FromRgb(220, 53, 69)),
-                Foreground = Brushes.White,
+                Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(220, 53, 69)),
+                Foreground = System.Windows.Media.Brushes.White,
                 BorderThickness = new Thickness(0),
                 Cursor = System.Windows.Input.Cursors.Hand
             };
@@ -294,7 +302,7 @@ public partial class MainWindow : Window
 
     private void DeleteAlarm(AlarmItem alarm)
     {
-        var result = MessageBox.Show(
+        var result = System.Windows.MessageBox.Show(
             $"確定要刪除鬧鐘「{alarm.Name}」嗎？",
             "確認刪除",
             MessageBoxButton.YesNo,
@@ -312,7 +320,7 @@ public partial class MainWindow : Window
         Dispatcher.Invoke(() =>
         {
             StatusText.Text = $"🔔 {e.Alarm.Name} 觸發！";
-            StatusText.Foreground = Brushes.Red;
+            StatusText.Foreground = System.Windows.Media.Brushes.Red;
             UpdateAlarmsDisplay();
 
             // 播放警報音效（使用自訂音樂或預設音效）
@@ -325,7 +333,7 @@ public partial class MainWindow : Window
         Dispatcher.Invoke(() =>
         {
             StatusText.Text = "系統就緒";
-            StatusText.Foreground = Brushes.Green;
+            StatusText.Foreground = System.Windows.Media.Brushes.Green;
             UpdateAlarmsDisplay();
 
             // 停止音效
@@ -385,12 +393,79 @@ public partial class MainWindow : Window
                 var newMusicManager = new MusicManager(dialog.MusicFolderPath);
             }
 
-            MessageBox.Show(
+            System.Windows.MessageBox.Show(
                 "設定已儲存！\n\n新的設定將立即生效。",
                 "成功",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information
             );
         }
+    }
+
+    private void InitializeSystemTray()
+    {
+        // 創建系統匣圖示
+        _notifyIcon = new WinForms.NotifyIcon
+        {
+            Icon = System.Drawing.SystemIcons.Application, // 使用預設應用程式圖示
+            Visible = true,
+            Text = "智慧鬧鐘"
+        };
+
+        // 雙擊圖示顯示視窗
+        _notifyIcon.DoubleClick += (s, e) => ShowWindow();
+
+        // 創建右鍵選單
+        var contextMenu = new WinForms.ContextMenuStrip();
+
+        var showMenuItem = new WinForms.ToolStripMenuItem("顯示主視窗");
+        showMenuItem.Click += (s, e) => ShowWindow();
+        contextMenu.Items.Add(showMenuItem);
+
+        contextMenu.Items.Add(new WinForms.ToolStripSeparator());
+
+        var exitMenuItem = new WinForms.ToolStripMenuItem("結束程式");
+        exitMenuItem.Click += (s, e) =>
+        {
+            _notifyIcon.Visible = false;
+            _notifyIcon.Dispose();
+            System.Windows.Application.Current.Shutdown();
+        };
+        contextMenu.Items.Add(exitMenuItem);
+
+        _notifyIcon.ContextMenuStrip = contextMenu;
+    }
+
+    private void MainWindow_StateChanged(object? sender, EventArgs e)
+    {
+        // 當視窗最小化時，隱藏到系統匣
+        if (WindowState == WindowState.Minimized)
+        {
+            Hide();
+            if (_notifyIcon != null)
+            {
+                _notifyIcon.ShowBalloonTip(
+                    1000,
+                    "智慧鬧鐘",
+                    "程式已最小化到系統匣，雙擊圖示可重新顯示視窗",
+                    WinForms.ToolTipIcon.Info
+                );
+            }
+        }
+    }
+
+    private void ShowWindow()
+    {
+        Show();
+        WindowState = WindowState.Normal;
+        Activate();
+    }
+
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        // 關閉視窗時最小化到系統匣，而不是結束程式
+        e.Cancel = true;
+        WindowState = WindowState.Minimized;
+        base.OnClosing(e);
     }
 }
