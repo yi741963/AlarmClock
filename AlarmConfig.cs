@@ -128,5 +128,25 @@ public class AlarmConfigItem
     [JsonPropertyName("musicFilePath")]
     public string MusicFilePath { get; set; } = "";
 
+    /// <summary>
+    /// 鬧鐘響鈴的星期幾 (0=星期日, 1=星期一, ..., 6=星期六)
+    /// 空陣列或 null 代表每天都響
+    /// </summary>
+    [JsonPropertyName("daysOfWeek")]
+    public List<int> DaysOfWeek { get; set; } = new();
+
     public TimeSpan GetTime() => new TimeSpan(Hour, Minute, 0);
+
+    /// <summary>
+    /// 檢查今天是否應該響鈴
+    /// </summary>
+    public bool ShouldRingToday()
+    {
+        // 如果沒有設定星期幾，代表每天都響
+        if (DaysOfWeek == null || DaysOfWeek.Count == 0)
+            return true;
+
+        int today = (int)DateTime.Now.DayOfWeek;
+        return DaysOfWeek.Contains(today);
+    }
 }

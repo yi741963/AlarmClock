@@ -143,9 +143,22 @@ public partial class MainWindow : Window
             Foreground = new SolidColorBrush(Color.FromRgb(0, 217, 255))
         };
 
+        // 顯示週期資訊
+        string daysInfo = "";
+        if (alarm.DaysOfWeek != null && alarm.DaysOfWeek.Count > 0)
+        {
+            var dayNames = new[] { "日", "一", "二", "三", "四", "五", "六" };
+            var selectedDays = alarm.DaysOfWeek.OrderBy(d => d).Select(d => dayNames[d]);
+            daysInfo = $" | 週期: {string.Join(", ", selectedDays)}";
+        }
+        else
+        {
+            daysInfo = " | 每天";
+        }
+
         var infoText = new TextBlock
         {
-            Text = $"響鈴 {alarm.CustomRingingDurationSeconds} 秒 | {(alarm.IsEnabled ? "✅ 啟用" : "❌ 停用")}",
+            Text = $"響鈴 {alarm.CustomRingingDurationSeconds} 秒 | {(alarm.IsEnabled ? "✅ 啟用" : "❌ 停用")}{daysInfo}",
             FontSize = 12,
             Foreground = new SolidColorBrush(Color.FromRgb(136, 136, 136)),
             Margin = new Thickness(0, 5, 0, 0)
@@ -254,7 +267,8 @@ public partial class MainWindow : Window
                 dialog.AlarmName,
                 dialog.RingingDuration,
                 dialog.MaxRingingDuration,
-                dialog.MusicFilePath
+                dialog.MusicFilePath,
+                dialog.DaysOfWeek
             );
         }
     }
@@ -272,7 +286,8 @@ public partial class MainWindow : Window
                 dialog.IsAlarmEnabled,
                 dialog.RingingDuration,
                 dialog.MaxRingingDuration,
-                dialog.MusicFilePath
+                dialog.MusicFilePath,
+                dialog.DaysOfWeek
             );
         }
     }

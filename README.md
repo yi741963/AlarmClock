@@ -10,6 +10,7 @@
   - ✏️ 編輯現有鬧鐘
   - 🗑️ 刪除鬧鐘
   - 🔔/🔕 快速啟用/停用切換
+  - 📅 **週期設定**：可設定每週特定日期響鈴（例如：僅週一到週五響鈴）
 
 - 🎯 **智慧響鈴邏輯**
   - 檢測使用者是否正在使用電腦
@@ -119,11 +120,23 @@ AlarmClock/
       "Id": "uuid-here-2",
       "Hour": 7,
       "Minute": 30,
-      "Name": "早晨起床",
+      "Name": "早晨起床（工作日）",
       "IsEnabled": true,
       "customRingingDurationSeconds": 10,
       "maxRingingDurationMinutes": 0,
-      "musicFilePath": "C:\\Users\\...\\Music\\morning.mp3"
+      "musicFilePath": "C:\\Users\\...\\Music\\morning.mp3",
+      "daysOfWeek": [1, 2, 3, 4, 5]
+    },
+    {
+      "Id": "uuid-here-3",
+      "Hour": 9,
+      "Minute": 0,
+      "Name": "週末早晨",
+      "IsEnabled": true,
+      "customRingingDurationSeconds": 5,
+      "maxRingingDurationMinutes": 10,
+      "musicFilePath": "",
+      "daysOfWeek": [0, 6]
     }
   ],
   "defaultRingingDurationSeconds": 5,
@@ -137,6 +150,10 @@ AlarmClock/
 - `maxRingingDurationMinutes`: 0 = 永不停止，需手動關閉
 - `musicFilePath`: 空字串 = 使用系統預設音效
 - `idleThresholdSeconds`: 可透過全域設定調整（10-300秒）
+- `daysOfWeek`: 陣列，指定星期幾響鈴（0=星期日, 1=星期一, ..., 6=星期六）
+  - 空陣列 `[]` = 每天都響
+  - `[1, 2, 3, 4, 5]` = 僅週一到週五響鈴
+  - `[0, 6]` = 僅週末響鈴
 
 ### 核心邏輯流程
 
@@ -148,6 +165,8 @@ AlarmClock/
 每秒檢查時間
   ↓
 時間匹配? ─No→ 繼續檢查
+  ↓ Yes
+檢查今天是否在設定的星期範圍內？
   ↓ Yes
 觸發鬧鐘
   ↓

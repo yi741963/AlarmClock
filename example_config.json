@@ -24,11 +24,12 @@
       "Id": "alarm-003",
       "Hour": 7,
       "Minute": 30,
-      "Name": "早晨起床",
+      "Name": "早晨起床（工作日）",
       "IsEnabled": true,
       "customRingingDurationSeconds": 10,
       "maxRingingDurationMinutes": 15,
-      "musicFilePath": ""
+      "musicFilePath": "",
+      "daysOfWeek": [1, 2, 3, 4, 5]
     },
     {
       "Id": "alarm-004",
@@ -38,7 +39,19 @@
       "IsEnabled": false,
       "customRingingDurationSeconds": 3,
       "maxRingingDurationMinutes": 5,
-      "musicFilePath": ""
+      "musicFilePath": "",
+      "daysOfWeek": []
+    },
+    {
+      "Id": "alarm-005",
+      "Hour": 9,
+      "Minute": 0,
+      "Name": "週末早晨",
+      "IsEnabled": true,
+      "customRingingDurationSeconds": 5,
+      "maxRingingDurationMinutes": 10,
+      "musicFilePath": "",
+      "daysOfWeek": [0, 6]
     }
   ],
   "defaultRingingDurationSeconds": 5,

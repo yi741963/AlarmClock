@@ -40,12 +40,13 @@ public class AlarmService
                 IsEnabled = configItem.IsEnabled,
                 CustomRingingDurationSeconds = configItem.CustomRingingDurationSeconds,
                 MaxRingingDurationMinutes = configItem.MaxRingingDurationMinutes,
-                MusicFilePath = configItem.MusicFilePath
+                MusicFilePath = configItem.MusicFilePath,
+                DaysOfWeek = configItem.DaysOfWeek ?? new List<int>()
             });
         }
     }
 
-    public void AddAlarm(int hour, int minute, string name = "", int customRingingSeconds = 5, int maxRingingMinutes = 10, string musicFilePath = "")
+    public void AddAlarm(int hour, int minute, string name = "", int customRingingSeconds = 5, int maxRingingMinutes = 10, string musicFilePath = "", List<int>? daysOfWeek = null)
     {
         var id = Guid.NewGuid().ToString();
         var alarm = new AlarmItem
@@ -56,7 +57,8 @@ public class AlarmService
             IsEnabled = true,
             CustomRingingDurationSeconds = customRingingSeconds,
             MaxRingingDurationMinutes = maxRingingMinutes,
-            MusicFilePath = musicFilePath
+            MusicFilePath = musicFilePath,
+            DaysOfWeek = daysOfWeek ?? new List<int>()
         };
 
         _alarms.Add(alarm);
@@ -64,7 +66,7 @@ public class AlarmService
         AlarmsChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    public void UpdateAlarm(string id, int hour, int minute, string name, bool isEnabled, int customRingingSeconds, int maxRingingMinutes, string musicFilePath)
+    public void UpdateAlarm(string id, int hour, int minute, string name, bool isEnabled, int customRingingSeconds, int maxRingingMinutes, string musicFilePath, List<int>? daysOfWeek = null)
     {
         var alarm = _alarms.FirstOrDefault(a => a.Id == id);
         if (alarm != null)
@@ -75,6 +77,7 @@ public class AlarmService
             alarm.CustomRingingDurationSeconds = customRingingSeconds;
             alarm.MaxRingingDurationMinutes = maxRingingMinutes;
             alarm.MusicFilePath = musicFilePath;
+            alarm.DaysOfWeek = daysOfWeek ?? new List<int>();
 
             SaveToConfig();
             AlarmsChanged?.Invoke(this, EventArgs.Empty);
@@ -117,7 +120,8 @@ public class AlarmService
                 IsEnabled = alarm.IsEnabled,
                 CustomRingingDurationSeconds = alarm.CustomRingingDurationSeconds,
                 MaxRingingDurationMinutes = alarm.MaxRingingDurationMinutes,
-                MusicFilePath = alarm.MusicFilePath
+                MusicFilePath = alarm.MusicFilePath,
+                DaysOfWeek = alarm.DaysOfWeek
             });
         }
         _config.Save();
@@ -134,7 +138,11 @@ public class AlarmService
         {
             if (Math.Abs((now - alarm.Time).TotalSeconds) < 1)
             {
-                TriggerAlarm(alarm);
+                // 檢查今天是否應該響鈴
+                if (alarm.ShouldRingToday())
+                {
+                    TriggerAlarm(alarm);
+                }
             }
         }
 
@@ -209,6 +217,20 @@ public class AlarmItem
     public int CustomRingingDurationSeconds { get; set; } = 5;
     public int MaxRingingDurationMinutes { get; set; } = 10;
     public string MusicFilePath { get; set; } = "";
+    public List<int> DaysOfWeek { get; set; } = new();
+
+    /// <summary>
+    /// 檢查今天是否應該響鈴
+    /// </summary>
+    public bool ShouldRingToday()
+    {
+        // 如果沒有設定星期幾，代表每天都響
+        if (DaysOfWeek == null || DaysOfWeek.Count == 0)
+            return true;
+
+        int today = (int)DateTime.Now.DayOfWeek;
+        return DaysOfWeek.Contains(today);
+    }
 }
 
 public class AlarmEventArgs : EventArgs

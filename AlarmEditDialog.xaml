@@ -2,13 +2,14 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="編輯鬧鐘"
-        Height="600"
+        Height="650"
         Width="500"
         WindowStartupLocation="CenterOwner"
         Background="#1E1E1E"
         ResizeMode="NoResize">
     <Grid Margin="20">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -191,8 +192,53 @@
             </Grid>
         </StackPanel>
 
+        <!-- 週期設定 -->
+        <StackPanel Grid.Row="6" Margin="0,0,0,15">
+            <TextBlock Text="重複週期 (未勾選代表每天都響)"
+                       FontSize="14"
+                       Foreground="#CCCCCC"
+                       Margin="0,0,0,5"/>
+            <WrapPanel>
+                <CheckBox x:Name="SundayCheckBox"
+                          Content="日"
+                          FontSize="14"
+                          Foreground="White"
+                          Margin="0,0,10,5"/>
+                <CheckBox x:Name="MondayCheckBox"
+                          Content="一"
+                          FontSize="14"
+                          Foreground="White"
+                          Margin="0,0,10,5"/>
+                <CheckBox x:Name="TuesdayCheckBox"
+                          Content="二"
+                          FontSize="14"
+                          Foreground="White"
+                          Margin="0,0,10,5"/>
+                <CheckBox x:Name="WednesdayCheckBox"
+                          Content="三"
+                          FontSize="14"
+                          Foreground="White"
+                          Margin="0,0,10,5"/>
+                <CheckBox x:Name="ThursdayCheckBox"
+                          Content="四"
+                          FontSize="14"
+                          Foreground="White"
+                          Margin="0,0,10,5"/>
+                <CheckBox x:Name="FridayCheckBox"
+                          Content="五"
+                          FontSize="14"
+                          Foreground="White"
+                          Margin="0,0,10,5"/>
+                <CheckBox x:Name="SaturdayCheckBox"
+                          Content="六"
+                          FontSize="14"
+                          Foreground="White"
+                          Margin="0,0,10,5"/>
+            </WrapPanel>
+        </StackPanel>
+
         <!-- 啟用開關 -->
-        <StackPanel Grid.Row="6" Margin="0,0,0,15" Orientation="Horizontal">
+        <StackPanel Grid.Row="7" Margin="0,0,0,15" Orientation="Horizontal">
             <CheckBox x:Name="IsEnabledCheckBox"
                       Content="啟用此鬧鐘"
                       FontSize="14"
@@ -202,7 +248,7 @@
         </StackPanel>
 
         <!-- 按鈕 -->
-        <Grid Grid.Row="8" Margin="0,20,0,0">
+        <Grid Grid.Row="9" Margin="0,20,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="10"/>

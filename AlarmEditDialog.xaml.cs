@@ -16,6 +16,7 @@ public partial class AlarmEditDialog : Window
     public int RingingDuration { get; private set; }
     public int MaxRingingDuration { get; private set; }
     public string MusicFilePath { get; private set; } = "";
+    public List<int> DaysOfWeek { get; private set; } = new();
     public bool IsSaved { get; private set; }
 
     public AlarmEditDialog(AlarmItem? alarm = null, MusicManager? musicManager = null)
@@ -49,6 +50,9 @@ public partial class AlarmEditDialog : Window
 
             _selectedMusicFilePath = alarm.MusicFilePath;
             UpdateMusicFileDisplay();
+
+            // 載入星期幾設定
+            LoadDaysOfWeek(alarm.DaysOfWeek);
         }
         else
         {
@@ -145,6 +149,51 @@ public partial class AlarmEditDialog : Window
         }
     }
 
+    private void LoadDaysOfWeek(List<int> daysOfWeek)
+    {
+        // 清除所有勾選
+        SundayCheckBox.IsChecked = false;
+        MondayCheckBox.IsChecked = false;
+        TuesdayCheckBox.IsChecked = false;
+        WednesdayCheckBox.IsChecked = false;
+        ThursdayCheckBox.IsChecked = false;
+        FridayCheckBox.IsChecked = false;
+        SaturdayCheckBox.IsChecked = false;
+
+        // 根據設定勾選對應的星期
+        if (daysOfWeek != null)
+        {
+            foreach (var day in daysOfWeek)
+            {
+                switch (day)
+                {
+                    case 0: SundayCheckBox.IsChecked = true; break;
+                    case 1: MondayCheckBox.IsChecked = true; break;
+                    case 2: TuesdayCheckBox.IsChecked = true; break;
+                    case 3: WednesdayCheckBox.IsChecked = true; break;
+                    case 4: ThursdayCheckBox.IsChecked = true; break;
+                    case 5: FridayCheckBox.IsChecked = true; break;
+                    case 6: SaturdayCheckBox.IsChecked = true; break;
+                }
+            }
+        }
+    }
+
+    private List<int> GetSelectedDaysOfWeek()
+    {
+        var days = new List<int>();
+
+        if (SundayCheckBox.IsChecked == true) days.Add(0);
+        if (MondayCheckBox.IsChecked == true) days.Add(1);
+        if (TuesdayCheckBox.IsChecked == true) days.Add(2);
+        if (WednesdayCheckBox.IsChecked == true) days.Add(3);
+        if (ThursdayCheckBox.IsChecked == true) days.Add(4);
+        if (FridayCheckBox.IsChecked == true) days.Add(5);
+        if (SaturdayCheckBox.IsChecked == true) days.Add(6);
+
+        return days;
+    }
+
     private void MaxRingingDurationSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (MaxRingingDurationText != null)
@@ -186,6 +235,7 @@ public partial class AlarmEditDialog : Window
         RingingDuration = (int)RingingDurationSlider.Value;
         MaxRingingDuration = (int)MaxRingingDurationSlider.Value;
         MusicFilePath = _selectedMusicFilePath;
+        DaysOfWeek = GetSelectedDaysOfWeek();
         IsSaved = true;
 
         DialogResult = true;
