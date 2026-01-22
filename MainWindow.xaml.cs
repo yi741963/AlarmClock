@@ -16,6 +16,7 @@ public partial class MainWindow : Window
     private readonly AlarmConfig _config;
     private readonly MusicManager _musicManager;
     private WinForms.NotifyIcon? _notifyIcon;
+    private int _previousVolume = 50;
 
     public MainWindow()
     {
@@ -300,7 +301,8 @@ public partial class MainWindow : Window
                 dialog.MaxRingingDuration,
                 dialog.MusicFilePath,
                 dialog.DaysOfWeek,
-                dialog.ExcludeHolidays
+                dialog.ExcludeHolidays,
+                dialog.Volume
             );
         }
     }
@@ -324,7 +326,8 @@ public partial class MainWindow : Window
                 dialog.MaxRingingDuration,
                 dialog.MusicFilePath,
                 dialog.DaysOfWeek,
-                dialog.ExcludeHolidays
+                dialog.ExcludeHolidays,
+                dialog.Volume
             );
         }
     }
@@ -388,6 +391,10 @@ public partial class MainWindow : Window
     {
         try
         {
+            // 儲存目前音量並設定鬧鐘音量
+            _previousVolume = VolumeController.GetVolume();
+            VolumeController.SetVolume(alarm.Volume);
+
             // 如果鬧鐘有自訂音樂檔案，使用自訂音樂
             if (!string.IsNullOrEmpty(alarm.MusicFilePath) && File.Exists(alarm.MusicFilePath))
             {
@@ -416,11 +423,14 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// 停止播放鬧鐘音效
+    /// 停止播放鬧鐘音效並恢復先前的音量
     /// </summary>
     private void StopAlarmSound()
     {
         _alarmSound.Stop();
+
+        // 恢復先前的音量
+        VolumeController.SetVolume(_previousVolume);
     }
 
     /// <summary>

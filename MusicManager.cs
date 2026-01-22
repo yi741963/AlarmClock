@@ -46,7 +46,7 @@ public class MusicManager
     /// </summary>
     /// <param name="filePath">要驗證的檔案路徑</param>
     /// <returns>true 表示檔案有效，false 表示無效</returns>
-    public bool IsValidMusicFile(string filePath)
+    public static bool IsValidMusicFile(string filePath)
     {
         if (!File.Exists(filePath))
             return false;
@@ -123,7 +123,7 @@ public class MusicManager
     /// </summary>
     /// <param name="filePath">要刪除的檔案路徑</param>
     /// <returns>true 表示刪除成功，false 表示失敗或檔案不存在</returns>
-    public bool DeleteMusicFile(string filePath)
+    public static bool DeleteMusicFile(string filePath)
     {
         try
         {

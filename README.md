@@ -31,6 +31,7 @@
   - 自動管理音樂資料夾（`%AppData%\SmartAlarmClock\Music`）
   - 可選擇複製檔案或使用原始路徑
   - 未設定時使用系統預設音效
+  - 🎚️ **音量控制**：每個鬧鐘可獨立設定音量大小（0-100%）
 
 - ⚙️ **全域設定**
   - 可自訂使用者活躍判斷時間（10-300秒）
@@ -63,6 +64,7 @@ AlarmClock/
 ├── AlarmConfig.cs            # JSON 設定管理（含完整 XML 註解）
 ├── MusicManager.cs           # 音樂檔案管理（含完整 XML 註解）
 ├── TaiwanHolidays.cs         # 台灣國定假日管理
+├── VolumeController.cs       # 音量控制（Windows API）
 ├── AlarmEditDialog.xaml      # 編輯對話框 UI
 ├── AlarmEditDialog.xaml.cs   # 編輯對話框邏輯（含完整 XML 註解）
 ├── SettingsDialog.xaml       # 全域設定對話框 UI
@@ -121,7 +123,8 @@ AlarmClock/
       "IsEnabled": true,
       "customRingingDurationSeconds": 5,
       "maxRingingDurationMinutes": 10,
-      "musicFilePath": ""
+      "musicFilePath": "",
+      "volume": 50
     },
     {
       "Id": "uuid-here-2",
@@ -133,7 +136,8 @@ AlarmClock/
       "maxRingingDurationMinutes": 0,
       "musicFilePath": "C:\\Users\\...\\Music\\morning.mp3",
       "daysOfWeek": [1, 2, 3, 4, 5],
-      "excludeHolidays": true
+      "excludeHolidays": true,
+      "volume": 80
     },
     {
       "Id": "uuid-here-3",
@@ -145,7 +149,8 @@ AlarmClock/
       "maxRingingDurationMinutes": 10,
       "musicFilePath": "",
       "daysOfWeek": [0, 6],
-      "excludeHolidays": false
+      "excludeHolidays": false,
+      "volume": 30
     }
   ],
   "defaultRingingDurationSeconds": 5,
@@ -166,6 +171,7 @@ AlarmClock/
 - `excludeHolidays`: 布林值，是否排除台灣國定假日
   - `true` = 國定假日不響鈴（適合工作日鬧鐘）
   - `false` = 國定假日仍然響鈴（預設值）
+- `volume`: 整數，音量大小（0-100），預設為 50
 
 ### 核心邏輯流程
 
@@ -226,8 +232,11 @@ dotnet build
    - 支援格式：MP3, WAV, WMA, M4A
    - 檔案大小限制：5 MB
    - 可選擇複製到程式資料夾或使用原始路徑
-7. 勾選「啟用此鬧鐘」
-8. 點擊「儲存」
+7. 拖動「音量大小」滑桿（0-100%）
+   - 設定此鬧鐘響鈴時的音量大小
+   - 預設為 50%
+8. 勾選「啟用此鬧鐘」
+9. 點擊「儲存」
 
 ### 編輯鬧鐘
 1. 點擊鬧鐘卡片右側的 ✏️ 按鈕
@@ -289,6 +298,10 @@ else if (!isUserActive && alarm.MaxRingingDurationMinutes > 0
 ```csharp
 private void PlayAlarmSound(AlarmItem alarm)
 {
+    // 儲存目前音量並設定鬧鐘音量
+    _previousVolume = VolumeController.GetVolume();
+    VolumeController.SetVolume(alarm.Volume);
+
     // 如果有自訂音樂檔案且存在，使用自訂音樂
     if (!string.IsNullOrEmpty(alarm.MusicFilePath) && File.Exists(alarm.MusicFilePath))
     {
@@ -301,6 +314,13 @@ private void PlayAlarmSound(AlarmItem alarm)
         SetSystemBeep();
         _alarmSound.PlayLooping();
     }
+}
+
+private void StopAlarmSound()
+{
+    _alarmSound.Stop();
+    // 恢復先前的音量
+    VolumeController.SetVolume(_previousVolume);
 }
 ```
 
@@ -340,15 +360,15 @@ private void SaveToConfig()
 - ✅ 浮動的編輯介面
 - ✅ 即時狀態更新
 - ✅ 大型清晰的時間選擇器（32px 粗體）
+- ✅ 音量控制功能（每個鬧鐘可獨立設定 0-100% 音量）
+- ✅ 循環播放音樂（PlayLooping）
 
 ## 未來改進方向
 
-- [ ] 週期性鬧鐘（每週特定日子）
 - [ ] 貪睡功能（Snooze）
-- [ ] 系統托盤最小化
 - [ ] 鬧鐘歷史記錄
 - [ ] 匯出/匯入設定
-- [ ] 更多音效選項（淡入效果、音量控制）
+- [ ] 更多音效選項（淡入效果）
 - [ ] 深色/淺色主題切換
 
 ## Vibe Coding 學習重點

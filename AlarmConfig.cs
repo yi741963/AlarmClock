@@ -210,6 +210,12 @@ public class AlarmConfigItem
     public bool ExcludeHolidays { get; set; } = false;
 
     /// <summary>
+    /// 音量大小 (0-100)，預設為 50
+    /// </summary>
+    [JsonPropertyName("volume")]
+    public int Volume { get; set; } = 50;
+
+    /// <summary>
     /// 將小時和分鐘轉換為 TimeSpan 物件
     /// </summary>
     /// <returns>代表鬧鐘時間的 TimeSpan 物件</returns>

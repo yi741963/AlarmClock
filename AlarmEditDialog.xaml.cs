@@ -18,6 +18,7 @@ public partial class AlarmEditDialog : Window
     public string MusicFilePath { get; private set; } = "";
     public List<int> DaysOfWeek { get; private set; } = new();
     public bool ExcludeHolidays { get; private set; }
+    public int Volume { get; private set; }
     public bool IsSaved { get; private set; }
 
     /// <summary>
@@ -62,6 +63,9 @@ public partial class AlarmEditDialog : Window
 
             // 載入排除假日設定
             ExcludeHolidaysCheckBox.IsChecked = alarm.ExcludeHolidays;
+
+            // 載入音量設定
+            VolumeSlider.Value = alarm.Volume;
         }
         else
         {
@@ -72,6 +76,7 @@ public partial class AlarmEditDialog : Window
             IsEnabledCheckBox.IsChecked = true;
             RingingDurationSlider.Value = 5;
             MaxRingingDurationSlider.Value = 10;
+            VolumeSlider.Value = 50;
         }
     }
 
@@ -92,7 +97,7 @@ public partial class AlarmEditDialog : Window
             var selectedFile = openFileDialog.FileName;
 
             // 驗證檔案
-            if (!_musicManager.IsValidMusicFile(selectedFile))
+            if (!MusicManager.IsValidMusicFile(selectedFile))
             {
                 System.Windows.MessageBox.Show(
                     "選擇的檔案無效！\n\n限制：\n- 僅支援 MP3, WAV, WMA, M4A 格式\n- 檔案大小不得超過 5 MB",
@@ -266,6 +271,7 @@ public partial class AlarmEditDialog : Window
         MusicFilePath = _selectedMusicFilePath;
         DaysOfWeek = GetSelectedDaysOfWeek();
         ExcludeHolidays = ExcludeHolidaysCheckBox.IsChecked ?? false;
+        Volume = (int)VolumeSlider.Value;
         IsSaved = true;
 
         DialogResult = true;

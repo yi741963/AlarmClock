@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace AlarmClock;
@@ -9,6 +10,8 @@ namespace AlarmClock;
 /// </summary>
 public static class TaiwanHolidays
 {
+    private static TaiwanLunisolarCalendar tCal = new TaiwanLunisolarCalendar();
+
     /// <summary>
     /// 取得指定年份的所有台灣國定假日
     /// </summary>
@@ -22,7 +25,7 @@ public static class TaiwanHolidays
         holidays.AddRange(GetFixedHolidays(year));
 
         // 農曆新年（需要計算）
-        holidays.AddRange(GetLunarNewYear(year));
+        holidays.AddRange(GetLunarHolidays(year));
 
         return holidays.OrderBy(d => d).ToList();
     }
@@ -39,41 +42,58 @@ public static class TaiwanHolidays
             new DateTime(year, 4, 4),   // 兒童節
             new DateTime(year, 4, 5),   // 清明節
             new DateTime(year, 5, 1),   // 勞動節
-            new DateTime(year, 6, 10),  // 端午節（假設，實際需農曆計算）
-            new DateTime(year, 9, 17),  // 中秋節（假設，實際需農曆計算）
+            //new DateTime(year, 6, 10),  // 端午節（假設，實際需農曆計算）
+            //new DateTime(year, 9, 17),  // 中秋節（假設，實際需農曆計算）
+            new DateTime(year, 9, 28),  // 教師節
             new DateTime(year, 10, 10), // 國慶日
+            new DateTime(year, 10, 25), // 光復節
+            new DateTime(year, 12, 25), // 行憲紀念日
         };
     }
 
     /// <summary>
-    /// 取得農曆新年假期（簡化版本，實際應使用農曆計算）
+    /// 取得農曆假期
     /// </summary>
-    private static List<DateTime> GetLunarNewYear(int year)
+    private static List<DateTime> GetLunarHolidays(int year)
     {
-        // 這裡使用簡化的農曆新年日期對照表
-        // 實際應使用農曆轉換函式庫
-        var lunarNewYearDates = new Dictionary<int, DateTime>
-        {
-            { 2024, new DateTime(2024, 2, 10) },
-            { 2025, new DateTime(2025, 1, 29) },
-            { 2026, new DateTime(2026, 2, 17) },
-            { 2027, new DateTime(2027, 2, 6) },
-            { 2028, new DateTime(2028, 1, 26) },
-            { 2029, new DateTime(2029, 2, 13) },
-            { 2030, new DateTime(2030, 2, 3) },
-        };
-
         var holidays = new List<DateTime>();
-        if (lunarNewYearDates.TryGetValue(year, out var lunarNewYear))
-        {
-            // 春節假期：除夕到初三（共4天）
-            holidays.Add(lunarNewYear.AddDays(-1)); // 除夕
-            holidays.Add(lunarNewYear);              // 初一
-            holidays.Add(lunarNewYear.AddDays(1));   // 初二
-            holidays.Add(lunarNewYear.AddDays(2));   // 初三
-        }
+
+        //1. 春節初一 (Lunar New Year Day 1)
+        DateTime lnyDay1 = tCal.ToDateTime(year, 1, 1, 0, 0, 0, 0);
+        holidays.Add(lnyDay1);
+        DateTime lnyDay2 = lnyDay1.AddDays(1);
+        holidays.Add(lnyDay2);
+        DateTime lnyDay3 = lnyDay1.AddDays(2);
+        holidays.Add(lnyDay3);
+
+        //2. 除夕 (春節前一天)
+        DateTime lnyEve = lnyDay1.AddDays(-1);
+        holidays.Add(lnyEve);
+
+        //3. 端午節 (農曆 5/5)
+        DateTime dragonBoat = GetLunarDate(year, 5, 5);
+        holidays.Add(dragonBoat);
+
+        //4. 中秋節 (農曆 8/15)
+        DateTime midAutumn = GetLunarDate(year, 8, 15);
+        holidays.Add(midAutumn);
 
         return holidays;
+    }
+
+    /// <summary>
+    /// 將農曆月日轉換為西元日期，自動處理閏月索引
+    /// </summary>
+    private static DateTime GetLunarDate(int year, int month, int day)
+    {
+        int leapMonth = tCal.GetLeapMonth(year);
+
+        // 如果該年有閏月，且閏月在目標月份之前或剛好是目標月份
+        // 則實際輸入的月份索引需要加 1
+        // 範例：若閏 2 月，則真正的 3 月在 Calendar 索引中會變成 4
+        int actualMonth = (leapMonth > 0 && leapMonth <= month) ? month + 1 : month;
+
+        return tCal.ToDateTime(year, actualMonth, day, 0, 0, 0, 0);
     }
 
     /// <summary>
@@ -101,7 +121,10 @@ public static class TaiwanHolidays
             { "04-04", "兒童節" },
             { "04-05", "清明節" },
             { "05-01", "勞動節" },
+            { "09-28", "教師節" },
             { "10-10", "國慶日" },
+            { "10-25", "台灣光復日" },
+            { "12-25", "行憲紀念日" },
         };
 
         var key = date.ToString("MM-dd");
@@ -111,7 +134,7 @@ public static class TaiwanHolidays
         }
 
         // 檢查是否為春節期間
-        var lunarNewYear = GetLunarNewYear(date.Year);
+        var lunarNewYear = GetLunarHolidays(date.Year);
         if (lunarNewYear.Any(d => d.Date == date.Date))
         {
             return "春節";

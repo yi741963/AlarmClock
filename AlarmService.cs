@@ -63,7 +63,8 @@ public class AlarmService
                 MaxRingingDurationMinutes = configItem.MaxRingingDurationMinutes,
                 MusicFilePath = configItem.MusicFilePath,
                 DaysOfWeek = configItem.DaysOfWeek ?? new List<int>(),
-                ExcludeHolidays = configItem.ExcludeHolidays
+                ExcludeHolidays = configItem.ExcludeHolidays,
+                Volume = configItem.Volume
             });
         }
     }
@@ -79,7 +80,8 @@ public class AlarmService
     /// <param name="musicFilePath">音樂檔案路徑</param>
     /// <param name="daysOfWeek">響鈴的星期幾（0=日, 1=一, ..., 6=六），空值或空清單表示每天</param>
     /// <param name="excludeHolidays">是否排除台灣國定假日</param>
-    public void AddAlarm(int hour, int minute, string name = "", int customRingingSeconds = 5, int maxRingingMinutes = 10, string musicFilePath = "", List<int>? daysOfWeek = null, bool excludeHolidays = false)
+    /// <param name="volume">音量大小 (0-100)</param>
+    public void AddAlarm(int hour, int minute, string name = "", int customRingingSeconds = 5, int maxRingingMinutes = 10, string musicFilePath = "", List<int>? daysOfWeek = null, bool excludeHolidays = false, int volume = 50)
     {
         var id = Guid.NewGuid().ToString();
         var alarm = new AlarmItem
@@ -92,7 +94,8 @@ public class AlarmService
             MaxRingingDurationMinutes = maxRingingMinutes,
             MusicFilePath = musicFilePath,
             DaysOfWeek = daysOfWeek ?? new List<int>(),
-            ExcludeHolidays = excludeHolidays
+            ExcludeHolidays = excludeHolidays,
+            Volume = volume
         };
 
         _alarms.Add(alarm);
@@ -113,7 +116,8 @@ public class AlarmService
     /// <param name="musicFilePath">音樂檔案路徑</param>
     /// <param name="daysOfWeek">響鈴的星期幾（0=日, 1=一, ..., 6=六），空值或空清單表示每天</param>
     /// <param name="excludeHolidays">是否排除台灣國定假日</param>
-    public void UpdateAlarm(string id, int hour, int minute, string name, bool isEnabled, int customRingingSeconds, int maxRingingMinutes, string musicFilePath, List<int>? daysOfWeek = null, bool excludeHolidays = false)
+    /// <param name="volume">音量大小 (0-100)</param>
+    public void UpdateAlarm(string id, int hour, int minute, string name, bool isEnabled, int customRingingSeconds, int maxRingingMinutes, string musicFilePath, List<int>? daysOfWeek = null, bool excludeHolidays = false, int volume = 50)
     {
         var alarm = _alarms.FirstOrDefault(a => a.Id == id);
         if (alarm != null)
@@ -126,6 +130,7 @@ public class AlarmService
             alarm.MusicFilePath = musicFilePath;
             alarm.DaysOfWeek = daysOfWeek ?? new List<int>();
             alarm.ExcludeHolidays = excludeHolidays;
+            alarm.Volume = volume;
 
             SaveToConfig();
             AlarmsChanged?.Invoke(this, EventArgs.Empty);
@@ -181,7 +186,8 @@ public class AlarmService
                 MaxRingingDurationMinutes = alarm.MaxRingingDurationMinutes,
                 MusicFilePath = alarm.MusicFilePath,
                 DaysOfWeek = alarm.DaysOfWeek,
-                ExcludeHolidays = alarm.ExcludeHolidays
+                ExcludeHolidays = alarm.ExcludeHolidays,
+                Volume = alarm.Volume
             });
         }
         _config.Save();
@@ -353,6 +359,11 @@ public class AlarmItem
     /// 是否排除台灣國定假日
     /// </summary>
     public bool ExcludeHolidays { get; set; } = false;
+
+    /// <summary>
+    /// 音量大小 (0-100)，預設為 50
+    /// </summary>
+    public int Volume { get; set; } = 50;
 
     /// <summary>
     /// 檢查今天是否應該響鈴（包含星期幾和假日檢查）
